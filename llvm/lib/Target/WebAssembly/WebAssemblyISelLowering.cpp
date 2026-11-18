@@ -3535,6 +3535,37 @@ static SDValue performTruncateCombine(SDNode *N,
   unsigned RequiredSignBits =
       InVT.getScalarSizeInBits() - OutVT.getScalarSizeInBits() + 1;
   bool Signed = DAG.ComputeNumSignBits(In) >= RequiredSignBits;
+
+  // InstCombine can turn an arithmetic shift into a logical shift when the
+  // shifted-in bits are discarded by the truncate. So, see if we can
+  // reconstruct the arithmetic shift so that its sign bits can enable signed
+  // narrowing.
+  if (!Signed && (In.getOpcode() == ISD::SRL ||
+                  In.getOpcode() == WebAssemblyISD::VEC_SHR_U)) {
+    APInt ShiftSplat;
+    unsigned SignedShiftOpcode = ISD::SRA;
+    bool IsConstantShift =
+        ISD::isConstantSplatVector(In.getOperand(1).getNode(), ShiftSplat);
+    if (In.getOpcode() == WebAssemblyISD::VEC_SHR_U) {
+      SignedShiftOpcode = WebAssemblyISD::VEC_SHR_S;
+      if (auto *Shift = dyn_cast<ConstantSDNode>(In.getOperand(1))) {
+        ShiftSplat = Shift->getAPIntValue();
+        IsConstantShift = true;
+      }
+    }
+
+    unsigned BitWidth = InVT.getScalarSizeInBits();
+    if (IsConstantShift &&
+        ShiftSplat.urem(BitWidth) <= BitWidth - OutVT.getScalarSizeInBits()) {
+      SDValue SignedIn = DAG.getNode(SignedShiftOpcode, DL, InVT,
+                                     In.getOperand(0), In.getOperand(1));
+      if (DAG.ComputeNumSignBits(SignedIn) >= RequiredSignBits) {
+        In = SignedIn;
+        Signed = true;
+      }
+    }
+  }
+
   if (!Signed) {
     APInt Mask = APInt::getLowBitsSet(InVT.getScalarSizeInBits(),
                                       OutVT.getScalarSizeInBits());

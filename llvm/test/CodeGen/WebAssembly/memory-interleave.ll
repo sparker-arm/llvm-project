@@ -5393,9 +5393,9 @@ define hidden void @argb_to_uv_matrix_row(ptr noundef readonly captures(none) %a
 ; CHECK-NEXT:    i16x8.add
 ; CHECK-NEXT:    i16x8.sub
 ; CHECK-NEXT:    i32.const 8
-; CHECK-NEXT:    i16x8.shr_u
+; CHECK-NEXT:    i16x8.shr_s
 ; CHECK-NEXT:    local.get 25
-; CHECK-NEXT:    i8x16.narrow_i16x8_u
+; CHECK-NEXT:    i8x16.narrow_i16x8_s
 ; CHECK-NEXT:    v128.store64_lane 0:p2align=0, 0
 ; CHECK-NEXT:    local.get 3
 ; CHECK-NEXT:    local.get 17
@@ -5416,9 +5416,9 @@ define hidden void @argb_to_uv_matrix_row(ptr noundef readonly captures(none) %a
 ; CHECK-NEXT:    i16x8.add
 ; CHECK-NEXT:    i16x8.sub
 ; CHECK-NEXT:    i32.const 8
-; CHECK-NEXT:    i16x8.shr_u
+; CHECK-NEXT:    i16x8.shr_s
 ; CHECK-NEXT:    local.get 25
-; CHECK-NEXT:    i8x16.narrow_i16x8_u
+; CHECK-NEXT:    i8x16.narrow_i16x8_s
 ; CHECK-NEXT:    v128.store64_lane 0:p2align=0, 0
 ; CHECK-NEXT:    local.get 0
 ; CHECK-NEXT:    i32.const 64

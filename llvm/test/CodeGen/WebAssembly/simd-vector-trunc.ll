@@ -440,6 +440,64 @@ entry:
   ret <8 x i8> %trunc
 }
 
+define <16 x i8> @trunc16i16_16i8_signed_lshr(<16 x i8> %a, <16 x i8> %b) {
+; CHECK-LABEL: trunc16i16_16i8_signed_lshr:
+; CHECK:         .functype trunc16i16_16i8_signed_lshr (v128, v128) -> (v128)
+; CHECK-NEXT:  # %bb.0: # %entry
+; CHECK-NEXT:    local.get 0
+; CHECK-NEXT:    i16x8.extend_low_i8x16_s
+; CHECK-NEXT:    local.get 1
+; CHECK-NEXT:    i16x8.extend_low_i8x16_s
+; CHECK-NEXT:    i16x8.sub
+; CHECK-NEXT:    i32.const 1
+; CHECK-NEXT:    i16x8.shr_s
+; CHECK-NEXT:    local.get 0
+; CHECK-NEXT:    i16x8.extend_high_i8x16_s
+; CHECK-NEXT:    local.get 1
+; CHECK-NEXT:    i16x8.extend_high_i8x16_s
+; CHECK-NEXT:    i16x8.sub
+; CHECK-NEXT:    i32.const 1
+; CHECK-NEXT:    i16x8.shr_s
+; CHECK-NEXT:    i8x16.narrow_i16x8_s
+; CHECK-NEXT:    # fallthrough-return
+entry:
+  %a.ext = sext <16 x i8> %a to <16 x i16>
+  %b.ext = sext <16 x i8> %b to <16 x i16>
+  %sub = sub nsw <16 x i16> %a.ext, %b.ext
+  %shift = lshr <16 x i16> %sub, splat (i16 1)
+  %trunc = trunc <16 x i16> %shift to <16 x i8>
+  ret <16 x i8> %trunc
+}
+
+define <8 x i16> @trunc8i32_8i16_signed_lshr(<8 x i16> %a, <8 x i16> %b) {
+; CHECK-LABEL: trunc8i32_8i16_signed_lshr:
+; CHECK:         .functype trunc8i32_8i16_signed_lshr (v128, v128) -> (v128)
+; CHECK-NEXT:  # %bb.0: # %entry
+; CHECK-NEXT:    local.get 0
+; CHECK-NEXT:    i32x4.extend_low_i16x8_s
+; CHECK-NEXT:    local.get 1
+; CHECK-NEXT:    i32x4.extend_low_i16x8_s
+; CHECK-NEXT:    i32x4.add
+; CHECK-NEXT:    i32.const 2
+; CHECK-NEXT:    i32x4.shr_s
+; CHECK-NEXT:    local.get 0
+; CHECK-NEXT:    i32x4.extend_high_i16x8_s
+; CHECK-NEXT:    local.get 1
+; CHECK-NEXT:    i32x4.extend_high_i16x8_s
+; CHECK-NEXT:    i32x4.add
+; CHECK-NEXT:    i32.const 2
+; CHECK-NEXT:    i32x4.shr_s
+; CHECK-NEXT:    i16x8.narrow_i32x4_s
+; CHECK-NEXT:    # fallthrough-return
+entry:
+  %a.ext = sext <8 x i16> %a to <8 x i32>
+  %b.ext = sext <8 x i16> %b to <8 x i32>
+  %add = add nsw <8 x i32> %a.ext, %b.ext
+  %shift = lshr <8 x i32> %add, splat (i32 2)
+  %trunc = trunc <8 x i32> %shift to <8 x i16>
+  ret <8 x i16> %trunc
+}
+
 define <8 x i8> @trunc8i32_8i8_signed_ashr(<8 x i32> %a) {
 ; CHECK-LABEL: trunc8i32_8i8_signed_ashr:
 ; CHECK:         .functype trunc8i32_8i8_signed_ashr (v128, v128) -> (v128)
